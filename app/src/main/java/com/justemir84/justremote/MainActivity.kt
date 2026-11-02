@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.justemir84.justremote.atv.AtvRemoteClient
+import com.justemir84.justremote.discovery.NsdDiscovery
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +43,8 @@ fun MainScreen() {
     var showRemote by remember { mutableStateOf(false) }
     var showTouchpad by remember { mutableStateOf(false) }
     var showKeyboard by remember { mutableStateOf(false) }
+    var discovered by remember { mutableStateOf<List<com.justemir84.justremote.discovery.DiscoveredTv>>(emptyList()) }
+    var discovering by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -53,6 +56,27 @@ fun MainScreen() {
 
         if (!showRemote && !showTouchpad && !showKeyboard) {
             OutlinedTextField(value = host, onValueChange = { host = it }, label = { Text("TV IP Adresi") })
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = {
+                discovering = true
+                discovered = emptyList()
+                scope.launch {
+                    val nsd = NsdDiscovery(context)
+                    nsd.discover(8000).collect { list ->
+                        discovered = list
+                    }
+                    discovering = false
+                }
+            }) { Text(if (discovering) "Taranıyor..." else "Cihaz Tara") }
+            if (discovered.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                discovered.forEach { tv ->
+                    Button(onClick = { host = tv.host }) {
+                        Text("${tv.name} (${tv.host})")
+                    }
+                    Spacer(Modifier.height(4.dp))
+                }
+            }
             Spacer(Modifier.height(8.dp))
             if (client == null) {
                 Button(onClick = {
