@@ -428,11 +428,13 @@ private fun RemoteScreen(
         SectionLabel("GEZİNME")
         Spacer(Modifier.height(12.dp))
         KeyCircle("↑") { onKey("UP") }
+        Spacer(Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             KeyCircle("←") { onKey("LEFT") }
             KeyCircle("OK", size = 86.dp, filled = true) { onKey("ENTER") }
             KeyCircle("→") { onKey("RIGHT") }
         }
+        Spacer(Modifier.height(10.dp))
         KeyCircle("↓") { onKey("DOWN") }
 
         Spacer(Modifier.height(20.dp))
