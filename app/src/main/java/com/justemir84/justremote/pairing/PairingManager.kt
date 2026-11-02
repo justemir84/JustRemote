@@ -5,7 +5,6 @@ import android.util.Log
 import com.justemir84.justremote.crypto.CertificateManager
 import com.justemir84.justremote.crypto.SecretGenerator
 import com.justemir84.justremote.storage.SecureStorage
-import java.security.cert.X509Certificate
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -14,7 +13,6 @@ import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
-import java.security.cert.X509Certificate
 
 /**
  * Android TV Remote protokolü için temel TLS bağlantı yöneticisi.
@@ -114,7 +112,7 @@ class PairingManager(private val context: Context) {
                 val serverExp = getServerExponentHex()
                 if (serverMod == null || serverExp == null) {
                     onResult(false, "Sunucu sertifikası alınamadı")
-                    return
+                    return@Thread
                 }
                 val clientMod = certManager.getCertificateModulusHex()
                 val clientExp = certManager.getCertificateExponentHex()
@@ -123,7 +121,7 @@ class PairingManager(private val context: Context) {
                 val hash = SecretGenerator.computeSecret(clientMod, clientExp, serverMod, serverExp, code)
                 if (!SecretGenerator.verifyCheck(code, hash)) {
                     onResult(false, "Pairing kodu geçersiz (kontrol uyuşmuyor)")
-                    return
+                    return@Thread
                 }
 
                 val out = s.outputStream

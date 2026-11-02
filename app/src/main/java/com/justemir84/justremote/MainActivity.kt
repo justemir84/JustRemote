@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -228,7 +229,7 @@ fun TouchpadScreen(client: AtvRemoteClient?, onBack: () -> Unit) {
                 .weight(1f)
                 .background(androidx.compose.ui.graphics.Color.DarkGray)
                 .pointerInput(Unit) {
-                    androidx.compose.foundation.gestures.detectDragGestures(
+                    detectDragGestures(
                         onDrag = { change, dragAmount ->
                             // Swipe yönüne göre D-pad tuşu gönder
                             if (dragAmount.x > 30) { scope.launch { client?.sendKeyCode("RIGHT") } }

@@ -6,7 +6,7 @@ import androidx.security.crypto.MasterKey
 
 class SecureStorage(context: Context) {
 
-    private val masterKey = MasterKey.Builder(context)
+    private val masterKey: MasterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
 

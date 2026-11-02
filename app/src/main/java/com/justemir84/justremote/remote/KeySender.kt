@@ -63,13 +63,4 @@ class KeySender(private val pairingManager: PairingManager) {
         Log.d(TAG, "Scroll: dy=$dy")
         // TODO: scroll paketi gönder
     }
-
-    fun sendText(text: String) {
-        if (!pairingManager.isConnected()) {
-            Log.w(TAG, "Not connected")
-            return
-        }
-        // TODO: IME injection protokolü
-        Log.d(TAG, "Sending text: $text")
-    }
 }
