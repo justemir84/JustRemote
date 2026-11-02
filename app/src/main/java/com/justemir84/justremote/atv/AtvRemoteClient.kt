@@ -21,6 +21,8 @@ class AtvRemoteClient(
     private var pendingPairing: PairingClient? = null
     var useFallbackOnly = false
 
+    val isConnected: Boolean get() = connected
+
     suspend fun ensureConnected(): Boolean = mutex.withLock {
         if (useFallbackOnly) return false
         if (connected && session != null) return true
@@ -103,6 +105,9 @@ class AtvRemoteClient(
             "GUIDE" -> Remotemessage.RemoteKeyCode.KEYCODE_GUIDE
             "SETTINGS" -> Remotemessage.RemoteKeyCode.KEYCODE_SETTINGS
             "SEARCH" -> Remotemessage.RemoteKeyCode.KEYCODE_SEARCH
+            "MEDIA_NEXT", "NEXT" -> Remotemessage.RemoteKeyCode.KEYCODE_MEDIA_NEXT
+            "MEDIA_PREV", "PREV" -> Remotemessage.RemoteKeyCode.KEYCODE_MEDIA_PREVIOUS
+            "PLAY_PAUSE" -> Remotemessage.RemoteKeyCode.KEYCODE_MEDIA_PLAY_PAUSE
             else -> return
         }
         mutex.withLock { session?.sendKey(key) }
