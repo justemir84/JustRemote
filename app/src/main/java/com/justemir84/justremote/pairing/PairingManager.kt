@@ -56,4 +56,42 @@ class PairingManager(private val context: Context) {
     }
 
     fun isConnected(): Boolean = socket?.isConnected == true
+
+    /**
+     * Pairing handshake (iskelet).
+     * Gerçek protokolde burada TV'ye pairing kodu gönderilir ve
+     * TV'den dönen sertifika/token alınır.
+     */
+    fun pair(code: String, onResult: (Boolean, String?) -> Unit) {
+        val s = socket ?: run {
+            onResult(false, "Bağlantı yok")
+            return
+        }
+        Thread {
+            try {
+                val out = s.outputStream
+                val inp = s.inputStream
+                // Örnek: kodu gönder (gerçek protokolde binary framing gerekir)
+                out.write(code.toByteArray(Charsets.UTF_8))
+                out.flush()
+                val buf = ByteArray(256)
+                val n = inp.read(buf)
+                val resp = String(buf, 0, n, Charsets.UTF_8)
+                Log.d(TAG, "Pair response: $resp")
+                // TODO: token'ı EncryptedSharedPreferences'a kaydet
+                onResult(true, resp)
+            } catch (e: Exception) {
+                Log.e(TAG, "Pair failed", e)
+                onResult(false, e.message)
+            }
+        }.start()
+    }
+
+    /**
+     * Token saklama (iskelet) — EncryptedSharedPreferences kullanılmalı.
+     */
+    fun saveToken(token: String) {
+        // TODO: EncryptedSharedPreferences ile kaydet
+        Log.d(TAG, "Token saved (placeholder)")
+    }
 }
