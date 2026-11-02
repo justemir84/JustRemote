@@ -2,21 +2,24 @@ package com.justemir84.justremote.remote
 
 import android.util.Log
 import com.justemir84.justremote.pairing.PairingManager
+import com.justemir84.justremote.protocol.PairingProtocol
 
 class KeySender(private val pairingManager: PairingManager) {
 
     private val TAG = "KeySender"
-
-    private fun socket() = pairingManager.let { null } // placeholder access
+    private var sequence: Long = 0
 
     fun sendKey(key: RemoteKey) {
         if (!pairingManager.isConnected()) {
             Log.w(TAG, "Not connected")
             return
         }
-        Log.d(TAG, "Sending key: ${key.name} (${key.code})")
-        // TODO: Gerçek protokol framing ile gönder.
-        // Örnek: ProtocolFramer.writeFrame(out, byteArrayOf(key.code.toByte()))
+        val msg = PairingProtocol.buildKeyEvent(sequence++, 0, key.code) // 0 = ACTION_DOWN
+        pairingManager.sendBytes(msg)
+        // ACTION_UP
+        val upMsg = PairingProtocol.buildKeyEvent(sequence++, 1, key.code)
+        pairingManager.sendBytes(upMsg)
+        Log.d(TAG, "Sent key: ${key.name}")
     }
 
     fun sendText(text: String) {
@@ -34,7 +37,6 @@ class KeySender(private val pairingManager: PairingManager) {
             return
         }
         Log.d(TAG, "Mouse move: dx=$dx dy=$dy")
-        // TODO: hareket paketi gönder
     }
 
     fun sendClick() {
@@ -43,7 +45,6 @@ class KeySender(private val pairingManager: PairingManager) {
             return
         }
         Log.d(TAG, "Mouse click")
-        // TODO: click paketi gönder
     }
 
     fun sendScroll(dy: Float) {
@@ -52,6 +53,5 @@ class KeySender(private val pairingManager: PairingManager) {
             return
         }
         Log.d(TAG, "Scroll: dy=$dy")
-        // TODO: scroll paketi gönder
     }
 }

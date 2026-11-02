@@ -63,6 +63,15 @@ class PairingManager(private val context: Context) {
 
     fun isConnected(): Boolean = socket?.isConnected == true
 
+    fun sendBytes(data: ByteArray) {
+        try {
+            socket?.outputStream?.write(data)
+            socket?.outputStream?.flush()
+        } catch (e: Exception) {
+            Log.e(TAG, "Send failed", e)
+        }
+    }
+
     fun getServerModulusHex(): String? {
         val cert = socket?.session?.peerCertificates?.firstOrNull() as? X509Certificate
         val pub = cert?.publicKey as? java.security.interfaces.RSAPublicKey
