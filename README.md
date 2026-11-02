@@ -1,21 +1,27 @@
 # JustRemote (Android TV Remote)
 
-Android TV / TV Box için uzaktan kumanda uygulaması (prototip).
+Android TV / TV Box için telefondan kullanılan uzaktan kumanda uygulaması.
 
 ## Teknoloji
-- Kotlin + Jetpack Compose
-- Android TV (LEANBACK_LAUNCHER)
+- Kotlin + Jetpack Compose (Material 3)
+- Telefon için dikey (portrait) arayüz, siyah-beyaz tema
 - Hedef: Android TV Remote protokolü (TLS + pairing)
 
 ## Gereksinimler
 - Android Studio (Hedgehog+)
 - JDK 17
-- Android SDK 34
+- Android SDK 35
 
 ## Kurulum
 1. Android Studio'da projeyi aç.
 2. Gradle sync yap.
-3. Emülatör veya TV cihazında çalıştır.
+3. Telefon veya emülatörde çalıştır.
+
+## Kullanım
+1. Telefon ile TV'yi aynı Wi-Fi ağına bağla.
+2. Uygulamada **TARA** ile TV'yi bul veya IP adresini elle gir.
+3. **BAĞLAN**, ardından TV'de gösterilen 6 haneli kodu gir.
+4. Kumanda / Touchpad / Klavye sekmelerini kullan.
 
 ## Derleme
 
@@ -35,12 +41,13 @@ Actions → "Android Build" → Artifacts → `JustRemote-APK`.
 
 ## Yol Haritası
 1. Proje iskeleti (tamamlandı)
-2. Pairing & TLS
-3. Kumanda tuşları (D-pad, OK, Geri)
-4. Touchpad (mouse) modu
-5. Klavye girişi
-6. Favoriler & Siteler
-7. Güvenlik (TLS, pairing onayı, şifreli saklama)
+2. Pairing & TLS (tamamlandı)
+3. Kumanda tuşları (D-pad, OK, Geri, ses, medya) (tamamlandı)
+4. Touchpad modu (tamamlandı)
+5. Klavye girişi (tamamlandı)
+6. Logo + siyah-beyaz telefon arayüzü (tamamlandı)
+7. Favoriler & Siteler
+8. Güvenlik (TLS doğrulama, APK imza kontrolü, şifreli saklama)
 
 ## Güvenlik
 - TLS zorunlu
