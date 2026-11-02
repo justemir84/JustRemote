@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.justemir84.justremote.atv.AtvRemoteClient
 import com.justemir84.justremote.discovery.NsdDiscovery
+import com.justemir84.justremote.update.UpdateManager
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -45,6 +46,21 @@ fun MainScreen() {
     var showKeyboard by remember { mutableStateOf(false) }
     var discovered by remember { mutableStateOf<List<com.justemir84.justremote.discovery.DiscoveredTv>>(emptyList()) }
     var discovering by remember { mutableStateOf(false) }
+    val updateManager = remember { UpdateManager(context) }
+    var updateInfo by remember { mutableStateOf<UpdateManager.ReleaseInfo?>(null) }
+    var checkingUpdate by remember { mutableStateOf(false) }
+    var downloading by remember { mutableStateOf(false) }
+    var progress by remember { mutableStateOf(0) }
+
+    // Auto-check update on launch
+    LaunchedEffect(Unit) {
+        checkingUpdate = true
+        val info = updateManager.checkLatestRelease()
+        if (info != null && info.version != updateManager.getCurrentVersion()) {
+            updateInfo = info
+        }
+        checkingUpdate = false
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -106,6 +122,19 @@ fun MainScreen() {
             }
             Spacer(Modifier.height(16.dp))
             Text(status)
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = {
+                scope.launch {
+                    checkingUpdate = true
+                    val info = updateManager.checkLatestRelease()
+                    if (info != null && info.version != updateManager.getCurrentVersion()) {
+                        updateInfo = info
+                    } else {
+                        status = "Güncel sürüm"
+                    }
+                    checkingUpdate = false
+                }
+            }) { Text(if (checkingUpdate) "Kontrol ediliyor..." else "Güncelleme Kontrol Et") }
             Spacer(Modifier.height(16.dp))
             Button(onClick = { showRemote = true }) { Text("Kumanda Ekranı") }
             Spacer(Modifier.height(8.dp))
@@ -119,6 +148,31 @@ fun MainScreen() {
         } else if (showKeyboard) {
             KeyboardScreen(client) { showKeyboard = false }
         }
+    }
+
+    if (updateInfo != null) {
+        AlertDialog(
+            onDismissRequest = { updateInfo = null },
+            title = { Text("Güncelleme Mevcut") },
+            text = { Text("Yeni sürüm: ${updateInfo!!.version}. İndirip kurmak ister misiniz?") },
+            confirmButton = {
+                Button(onClick = {
+                    val info = updateInfo!!
+                    if (info.downloadUrl != null) {
+                        downloading = true
+                        scope.launch {
+                            val ok = updateManager.downloadAndInstall(info.downloadUrl) { p -> progress = p }
+                            downloading = false
+                            if (!ok) status = "Güncelleme başarısız"
+                        }
+                    }
+                    updateInfo = null
+                }) { Text(if (downloading) "%$progress" else "İndir") }
+            },
+            dismissButton = {
+                TextButton(onClick = { updateInfo = null }) { Text("Sonra") }
+            }
+        )
     }
 }
 
