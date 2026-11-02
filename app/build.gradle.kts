@@ -52,5 +52,8 @@ dependencies {
     implementation("androidx.tv:tv-foundation:1.0.0-alpha10")
     implementation("androidx.tv:tv-material:1.0.0-alpha10")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.78")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.78")
+    implementation("com.google.protobuf:protobuf-java:3.25.3")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

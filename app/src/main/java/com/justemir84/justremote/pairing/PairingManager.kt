@@ -2,7 +2,10 @@ package com.justemir84.justremote.pairing
 
 import android.content.Context
 import android.util.Log
+import com.justemir84.justremote.crypto.CertificateManager
+import com.justemir84.justremote.crypto.SecretGenerator
 import com.justemir84.justremote.storage.SecureStorage
+import java.security.cert.X509Certificate
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -21,6 +24,7 @@ import java.security.cert.X509Certificate
 class PairingManager(private val context: Context) {
 
     private val secureStorage = SecureStorage(context)
+    private val certManager = CertificateManager(context)
     private var socket: SSLSocket? = null
     private val TAG = "PairingManager"
 
@@ -59,6 +63,18 @@ class PairingManager(private val context: Context) {
 
     fun isConnected(): Boolean = socket?.isConnected == true
 
+    fun getServerModulusHex(): String? {
+        val cert = socket?.session?.peerCertificates?.firstOrNull() as? X509Certificate
+        val pub = cert?.publicKey as? java.security.interfaces.RSAPublicKey
+        return pub?.modulus?.toString(16)
+    }
+
+    fun getServerExponentHex(): String? {
+        val cert = socket?.session?.peerCertificates?.firstOrNull() as? X509Certificate
+        val pub = cert?.publicKey as? java.security.interfaces.RSAPublicKey
+        return pub?.publicExponent?.toString(16)?.padStart(2, '0')
+    }
+
     /**
      * Pairing handshake (iskelet).
      * Gerçek protokolde burada TV'ye pairing kodu gönderilir ve
@@ -71,17 +87,31 @@ class PairingManager(private val context: Context) {
         }
         Thread {
             try {
+                val serverMod = getServerModulusHex()
+                val serverExp = getServerExponentHex()
+                if (serverMod == null || serverExp == null) {
+                    onResult(false, "Sunucu sertifikası alınamadı")
+                    return
+                }
+                val clientMod = certManager.getCertificateModulusHex()
+                val clientExp = certManager.getCertificateExponentHex()
+
+                // Kontrol: ilk 2 hex karakter hash ile eşleşmeli
+                val hash = SecretGenerator.computeSecret(clientMod, clientExp, serverMod, serverExp, code)
+                if (!SecretGenerator.verifyCheck(code, hash)) {
+                    onResult(false, "Pairing kodu geçersiz (kontrol uyuşmuyor)")
+                    return
+                }
+
                 val out = s.outputStream
-                val inp = s.inputStream
-                // Örnek: kodu gönder (gerçek protokolde binary framing gerekir)
-                out.write(code.toByteArray(Charsets.UTF_8))
+                // TODO: Gerçek protokolde hash'i binary framing ile gönder.
+                // Örnek placeholder: hash'i gönder
+                out.write(hash)
                 out.flush()
-                val buf = ByteArray(256)
-                val n = inp.read(buf)
-                val resp = String(buf, 0, n, Charsets.UTF_8)
-                Log.d(TAG, "Pair response: $resp")
-                // TODO: token'ı EncryptedSharedPreferences'a kaydet
-                onResult(true, resp)
+
+                // Token'ı sakla (gerçek protokolde TV'den dönen token)
+                saveToken(code) // placeholder
+                onResult(true, "Eşleştirme başarılı")
             } catch (e: Exception) {
                 Log.e(TAG, "Pair failed", e)
                 onResult(false, e.message)
