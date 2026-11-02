@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +7,26 @@ plugins {
     id("com.google.protobuf")
     id("com.google.devtools.ksp")
 }
+
+// Release imzalama: degerler ortam degiskenlerinden (CI) veya keystore.properties (yerel) okunur.
+// Anahtar yoksa release derlemesi imzasiz uretilir; debug derlemesi etkilenmez.
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+fun signingValue(envName: String, propName: String): String? =
+    System.getenv(envName) ?: keystoreProps.getProperty(propName)
+
+val releaseStoreFile = signingValue("KEYSTORE_FILE", "storeFile")
+val releaseStorePassword = signingValue("KEYSTORE_PASSWORD", "storePassword")
+val releaseKeyAlias = signingValue("KEY_ALIAS", "keyAlias")
+val releaseKeyPassword = signingValue("KEY_PASSWORD", "keyPassword")
+val hasReleaseSigning = releaseStoreFile != null &&
+    releaseStorePassword != null &&
+    releaseKeyAlias != null &&
+    releaseKeyPassword != null &&
+    file(releaseStoreFile).exists()
 
 android {
     namespace = "com.justemir84.justremote"
@@ -18,10 +40,22 @@ android {
         versionName = "0.2.0"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(releaseStoreFile!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
