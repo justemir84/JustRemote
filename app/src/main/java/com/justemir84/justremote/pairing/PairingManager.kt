@@ -63,6 +63,20 @@ class PairingManager(private val context: Context) {
 
     fun isConnected(): Boolean = socket?.isConnected == true
 
+    fun sendPairingRequest(serviceName: String = "info.kodono.assistant", clientName: String = "JustRemote") {
+        val s = socket ?: return
+        Thread {
+            try {
+                val msg = com.justemir84.justremote.protocol.PairingProtocol.buildPairingRequest(serviceName, clientName)
+                s.outputStream.write(msg)
+                s.outputStream.flush()
+                Log.d(TAG, "Pairing request sent")
+            } catch (e: Exception) {
+                Log.e(TAG, "Pairing request failed", e)
+            }
+        }.start()
+    }
+
     fun sendBytes(data: ByteArray) {
         try {
             socket?.outputStream?.write(data)

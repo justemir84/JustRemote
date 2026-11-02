@@ -36,6 +36,13 @@ class KeySender(private val pairingManager: PairingManager) {
             Log.w(TAG, "Not connected")
             return
         }
+        // TODO: Gerçek protokolde mouse hareketi paketi gönder.
+        // Örnek placeholder: dx, dy'yi byte'a çevir ve gönder.
+        val payload = byteArrayOf(
+            (dx.toInt() and 0xFF).toByte(),
+            (dy.toInt() and 0xFF).toByte()
+        )
+        pairingManager.sendBytes(payload)
         Log.d(TAG, "Mouse move: dx=$dx dy=$dy")
     }
 
@@ -45,6 +52,7 @@ class KeySender(private val pairingManager: PairingManager) {
             return
         }
         Log.d(TAG, "Mouse click")
+        // TODO: click paketi gönder
     }
 
     fun sendScroll(dy: Float) {
@@ -53,5 +61,15 @@ class KeySender(private val pairingManager: PairingManager) {
             return
         }
         Log.d(TAG, "Scroll: dy=$dy")
+        // TODO: scroll paketi gönder
+    }
+
+    fun sendText(text: String) {
+        if (!pairingManager.isConnected()) {
+            Log.w(TAG, "Not connected")
+            return
+        }
+        // TODO: IME injection protokolü
+        Log.d(TAG, "Sending text: $text")
     }
 }
