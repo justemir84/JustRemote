@@ -2,6 +2,7 @@ package com.justemir84.justremote.pairing
 
 import android.content.Context
 import android.util.Log
+import com.justemir84.justremote.storage.SecureStorage
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -19,6 +20,7 @@ import java.security.cert.X509Certificate
  */
 class PairingManager(private val context: Context) {
 
+    private val secureStorage = SecureStorage(context)
     private var socket: SSLSocket? = null
     private val TAG = "PairingManager"
 
@@ -88,10 +90,16 @@ class PairingManager(private val context: Context) {
     }
 
     /**
-     * Token saklama (iskelet) — EncryptedSharedPreferences kullanılmalı.
+     * Token saklama — EncryptedSharedPreferences ile şifreli.
      */
     fun saveToken(token: String) {
-        // TODO: EncryptedSharedPreferences ile kaydet
-        Log.d(TAG, "Token saved (placeholder)")
+        secureStorage.saveToken(token)
+        Log.d(TAG, "Token saved (encrypted)")
     }
+
+    fun getToken(): String? = secureStorage.getToken()
+
+    fun hasToken(): Boolean = secureStorage.hasToken()
+
+    fun clearToken() = secureStorage.clearToken()
 }
