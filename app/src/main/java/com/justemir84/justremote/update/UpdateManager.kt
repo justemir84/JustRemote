@@ -35,11 +35,13 @@ class UpdateManager(private val context: Context) {
             val version = tag.removePrefix("v")
             val assets = json.optJSONArray("assets")
             var apkUrl: String? = null
-            for (i in 0 until (assets?.length() ?: 0)) {
-                val a = assets.getJSONObject(i)
-                if (a.optString("name").endsWith(".apk")) {
-                    apkUrl = a.optString("browser_download_url")
-                    break
+            if (assets != null) {
+                for (i in 0 until assets.length()) {
+                    val a = assets.getJSONObject(i)
+                    if (a.optString("name").endsWith(".apk")) {
+                        apkUrl = a.optString("browser_download_url")
+                        break
+                    }
                 }
             }
             ReleaseInfo(version, apkUrl)

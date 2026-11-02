@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.justemir84.justremote"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.justemir84.justremote"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
     }
@@ -44,6 +44,10 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // BouncyCastle (bcprov/bcpkix/bcutil) ve jspecify ayni dosyalari getiriyor
+            excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+            excludes += "/META-INF/versions/9/module-info.class"
+            excludes += "META-INF/versions/**/module-info.class"
         }
     }
 }
@@ -77,7 +81,7 @@ dependencies {
     implementation("androidx.tv:tv-foundation:1.0.0-alpha10")
     implementation("androidx.tv:tv-material:1.0.0-alpha10")
 
-    implementation("androidx.security:security-crypto:1.0.0")
+    implementation("androidx.security:security-crypto:1.1.0")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("com.google.protobuf:protobuf-javalite:3.25.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")

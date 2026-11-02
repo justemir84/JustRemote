@@ -17,6 +17,22 @@ Android TV / TV Box için uzaktan kumanda uygulaması (prototip).
 2. Gradle sync yap.
 3. Emülatör veya TV cihazında çalıştır.
 
+## Derleme
+
+```bash
+./gradlew assembleDebug          # Linux / macOS
+gradlew.bat assembleDebug        # Windows
+```
+
+APK çıktısı: `app/build/outputs/apk/debug/app-debug.apk`
+
+`main` dalına yapılan her push'ta GitHub Actions APK üretir:
+Actions → "Android Build" → Artifacts → `JustRemote-APK`.
+
+> **Windows notu:** Proje yolu Türkçe karakter içeriyorsa (ör. `Varsayılan Proje`)
+> `protoc` adımı hata verir. Bu durumda projeyi ASCII bir yola taşıyın
+> (ör. `C:\dev\JustRemote`) veya doğrudan CI'daki APK'yı kullanın.
+
 ## Yol Haritası
 1. Proje iskeleti (tamamlandı)
 2. Pairing & TLS
