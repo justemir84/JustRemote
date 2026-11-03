@@ -35,6 +35,24 @@ APK çıktısı: `app/build/outputs/apk/debug/app-debug.apk`
 `main` dalına yapılan her push'ta GitHub Actions APK üretir:
 Actions → "Android Build" → Artifacts → `JustRemote-APK`.
 
+### Sürüm yayınlama (oto güncelleme için)
+
+1. `app/build.gradle.kts` içinde `versionCode` / `versionName` değerlerini artır.
+2. Aynı sürümle etiket oluştur ve gönder:
+
+```bash
+git tag v0.3.0
+git push origin v0.3.0
+```
+
+`Release` workflow'u imzalı APK'yı derler ve GitHub Releases'e
+`JustRemote-<sürüm>.apk` olarak yükler. Uygulamadaki
+"GÜNCELLEME KONTROL ET" bu release'i bulup indirir ve kurulum ekranını açar.
+
+İmzalama anahtarı GitHub Secrets'tan gelir (`KEYSTORE_BASE64`,
+`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Anahtar her sürümde
+aynı olmalıdır; aksi halde güncelleme kurulamaz.
+
 > **Windows notu:** Proje yolu Türkçe karakter içeriyorsa (ör. `Varsayılan Proje`)
 > `protoc` adımı hata verir. Bu durumda projeyi ASCII bir yola taşıyın
 > (ör. `C:\dev\JustRemote`) veya doğrudan CI'daki APK'yı kullanın.
